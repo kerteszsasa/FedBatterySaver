@@ -32,7 +32,7 @@ public:
         bool calculatedOutput = false;
 
         if (output) {
-            calculatedOutput = (lastChangeTime + MAX_ON_TIME) > millis();
+            calculatedOutput = (lastChangeTime + ON_TIME) > millis();
         } else {
             calculatedOutput = millis() > lastChangeTime + MAX_OFF_TIME;
         }
@@ -49,8 +49,8 @@ private:
     unsigned long lastChangeTime;
     uint32_t lastVoltageMillivolts;
 
-    const unsigned long MAX_ON_TIME = 2 * 1000;
-    const unsigned long MAX_OFF_TIME = 5 * 1000;
+    const unsigned long ON_TIME = 5 * 60 * 1000;                // 5  MIN
+    const unsigned long MAX_OFF_TIME = 55 * 60 * 1000;          // 55 MIN
     const uint32_t VOLTAGE_DROP_THRESHOLD_MILLIVOLTS = 100;
 };
 

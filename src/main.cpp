@@ -32,13 +32,13 @@ bool hasIgnition()
 uint32_t readBatteryVoltageMilliVolts()
 {
   uint64_t adc_mv = 0;
-  for (int i = 0; i < 1000; i++)
+  int avgNum = 1000;
+  uint32_t resistorDivider = 11;
+  for (int i = 0; i < avgNum; i++)
   {
-    adc_mv += analogReadMilliVolts(SUPPLY_ADC_PIN);
+    adc_mv += analogReadMilliVolts(SUPPLY_ADC_PIN) * resistorDivider;
   }
-  adc_mv = adc_mv / 1000;
-  uint32_t divider = 11;
-  return adc_mv * divider;
+  return adc_mv / avgNum;
 }
 
 void processCommand(String cmd)
@@ -109,9 +109,10 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);
 
-  // WiFi.disconnect(true); // Disconnect from the network
-  // WiFi.mode(WIFI_OFF);   // Switch WiFi off
-  // setCpuFrequencyMhz(80);
+  WiFi.disconnect(true); // Disconnect from the network
+  WiFi.mode(WIFI_OFF);   // Switch WiFi off
+  setCpuFrequencyMhz(80);
+
 }
 
 void loop()
@@ -119,24 +120,26 @@ void loop()
   readSerialInput();
   delay(1);
   /////////////////////////////////////////////////////////////////////
-
+  digitalWrite(LED_PIN, LOW);
   powerSwitcher.updateIgnitionState(hasIgnition());
   powerSwitcher.updateBatteryVoltage(readBatteryVoltageMilliVolts());
+  digitalWrite(LED_PIN, HIGH);
 
   bool state = powerSwitcher.calculatePowerState();
   turnOutputPower(state);
 
-  lightSleep(500);
-
-
-  // digitalWrite(LED_PIN, LOW);
-  // delay(20);
-  // digitalWrite(LED_PIN, HIGH);
-  // delay(20);
+  if (hasIgnition())
+  {
+    delay(1000); // Delay is for debugging
+  }
+  else
+  {
+    lightSleep(1000); // Sleep is for saving power
+  }
 
   // if(Serial.availableForWrite())
   // {
-  //   //delay(1);
-  //   // Serial.printf(">ADC:%d\n", adc);
+  //   delay(1);
+  //   Serial.printf(">ADC:%d\n", readBatteryVoltageMilliVolts());
   // }
 }
